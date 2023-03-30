@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input{
+    caret-color: rgb(56, 216, 252);
+}
