@@ -5,3 +5,17 @@
 input{
     caret-color: rgb(56, 216, 252);
 }
+
+#terminal-body::-webkit-scrollbar {
+    display: none;
+}
+
+#terminal-cursor{
+    animation: cursorAnimate 600ms linear infinite alternate-reverse;
+}
+
+@keyframes cursorAnimate {
+    0% {scale: 0%;}
+    50% {scale: 55%;}
+    100% {scale: 100%;}
+}
