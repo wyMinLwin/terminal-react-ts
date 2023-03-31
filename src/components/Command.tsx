@@ -92,7 +92,7 @@ const Command = (props:CommandProps) => {
             case '*':
             case '/':
             case '&':
-            case '&':
+            case '+':
             case ' ':
             case '1':
             case '2':
