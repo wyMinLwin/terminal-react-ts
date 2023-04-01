@@ -1,21 +1,22 @@
 import React from 'react'
-import { PreviousCommandType } from './TerminallBody'
+import { useAppSelector } from '../store';
+import { CommandHistoryType } from '../store/commandHistorySlice';
 type CommandHistoryProps = {
-    item: PreviousCommandType;
-    result: string;
+    item: CommandHistoryType;
 }
 const CommandHistory = (props:CommandHistoryProps) => {
+  const userPrefremce = useAppSelector(state => state.userPrefrence)
+  const splitedResult = props.item.result.split('\n')
   return (
     <>
         <div className='text-blue-400'>
-        @user ~/Terminal <span className='text-light-body'>$</span>
-        <span className='ml-2 text-light-body' >
+        @{userPrefremce.name} ~/Terminal <span className={`${userPrefremce.theme === 'dark' ? 'text-light-body' : 'text-dark-body'}`}>$</span>
+        <span className={`ml-2 ${ userPrefremce.theme === 'dark' ?'text-light-body' : 'text-dark-body'}`} >
             {props.item.command}
-
-                    {/* <span className='w-2 h-2 bg-blue-300' id='terminal-cursor'></span> */}
         </span>
         </div>
-        <div className='text-green-600'>{`>> ${props.result}`}</div>
+        {/* <div className='text-green-600'>{`>> ${props.item.result}`}</div> */}
+        {splitedResult.map(e => <div className='text-green-600'>{'>> '+ e}</div>)}
     </>
   )
 }

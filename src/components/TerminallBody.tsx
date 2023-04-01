@@ -1,23 +1,18 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import Command from './Command';
 import CommandHistory from './CommandHistory';
 import { v4 as uuidv4 } from 'uuid';
-
-export type PreviousCommandType = {
-  command:string;
-  result: string;
-}
+import { useAppSelector } from '../store';
 
 const TerminallBody = () => {
-
-  const [previousCommand,setPreviousCommand] = useState<PreviousCommandType[]>([])
+  const theme = useAppSelector(state => state.userPrefrence.theme)
+  const history = useAppSelector(state => state.commandHistory)
 
 // &nbsp;&nbsp;
   return (
-    <div className='w-full h-full bg-dark-body rounded-b-md p-3 overflow-scroll' id='terminal-body'>
+    <div className={`w-full h-full ${theme === 'dark' ? 'bg-dark-body' : 'bg-light-body'} rounded-b-md p-3 overflow-scroll`} id='terminal-body'>
         <div className='grid grid-cols-1'>
-          {previousCommand.map(item => <CommandHistory result={item.result} key={uuidv4()} item={item} />)}
-          <Command previousCommand={previousCommand} setPreviousCommand = {(commandVal:string,commandResult:string) => setPreviousCommand(prev => ([...prev,{command:commandVal,result:commandResult}]))} />
+          {history.map(item => <CommandHistory key={uuidv4()} item={item} />)}
+          <Command />
               
         </div>
     </div>

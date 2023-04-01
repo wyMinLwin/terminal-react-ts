@@ -1,18 +1,16 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
+import { useAppDispatch, useAppSelector } from '../store';
+import { commandHistorySlice } from '../store/commandHistorySlice';
+import { userPrefrenceSlice } from '../store/userPrefrenceSlice';
 import { commandRunnder } from '../utils/commandRunner';
-import { PreviousCommandType } from './TerminallBody'
 
-type CommandProps = {
-    setPreviousCommand ?: (commandVal:string,commandResult:string) => void;
-    previousCommand: PreviousCommandType[];
-}
-
-const Command = (props:CommandProps) => {
+const Command = () => {
+    const history = useAppSelector(state => state.commandHistory)
     const commandRef = useRef<HTMLInputElement>(null!)
-    const [historyIndex,setHistoryIndex] = useState(props.previousCommand.length)
+    const [historyIndex,setHistoryIndex] = useState(history.length)
     const [command,setCommand] = useState('')
     const [currentIndex,setCurrentIndex] = useState(command.length)
-   
+ 
     const writeCommand = (input:string) => {
         setCommand(prev => prev = command.slice(0,currentIndex) + input + command.slice(currentIndex))
         setCurrentIndex(prev => prev+1)
@@ -24,21 +22,20 @@ const Command = (props:CommandProps) => {
     }
 
     const getOldCommands = (arrow:'arrowdown'|'arrowup') => {
-        console.log('w')
         if ( arrow === 'arrowdown') {
-            if (historyIndex < props.previousCommand.length-1) {
-                setCommand(prev => prev = props.previousCommand[historyIndex+1].command)
-                setCurrentIndex(prev => prev = props.previousCommand[historyIndex+1].command.length)
+            if (historyIndex < history.length-1) {
+                setCommand(prev => prev = history[historyIndex+1].command)
+                setCurrentIndex(prev => prev = history[historyIndex+1].command.length)
                 setHistoryIndex(prev => prev +1)
-            } else if (historyIndex === props.previousCommand.length-1) {
+            } else if (historyIndex === history.length-1) {
                 setCommand(prev => prev = '')
-                setCurrentIndex(prev => prev = command.length)
-                setHistoryIndex(prev => prev = props.previousCommand.length)
+                setCurrentIndex(prev => prev = 0)
+                setHistoryIndex(prev => prev = history.length)
                 
             }
         } else if (arrow === 'arrowup'){
-            setCommand(prev => prev = props.previousCommand[historyIndex-1].command)
-            setCurrentIndex(props.previousCommand[historyIndex-1].command.length)
+            setCommand(prev => prev = history[historyIndex-1].command)
+            setCurrentIndex(history[historyIndex-1].command.length)
             setHistoryIndex(prev => prev -1)
         }
     }
@@ -56,7 +53,7 @@ const Command = (props:CommandProps) => {
 
                 return
             case 'arrowdown' : 
-                if ( historyIndex < props.previousCommand.length) getOldCommands('arrowdown')
+                if ( historyIndex < history.length) getOldCommands('arrowdown')
 
                 return
             case 'backspace' : 
@@ -89,6 +86,7 @@ const Command = (props:CommandProps) => {
             case 'y': 
             case 'z': 
             case '-':
+            case '_':
             case '*':
             case '/':
             case '&':
@@ -109,21 +107,33 @@ const Command = (props:CommandProps) => {
         
         }
     }
+    const userName = useAppSelector(state => state.userPrefrence.name)
+    const dispatch = useAppDispatch()
+    const setUserName = (username:string) => {
+        dispatch(userPrefrenceSlice.actions.setUserName(username))
+    }
+    const setTheme = (theme:string) => {
+        dispatch(userPrefrenceSlice.actions.setTheme(theme))
+    }
+    const clearHistory = () => {
+        setHistoryIndex(prev => prev = 0);
+        dispatch(commandHistorySlice.actions.clearHistory())
+    }
+    const theme = useAppSelector(state => state.userPrefrence.theme)
   return (
+
     <>
-    <div className='text-blue-400'>
-        @user ~/Terminal <span className='text-light-body'>$</span>
-        <span className='ml-2 text-light-body' >
+    <div className='text-blue-400' onClick={() => commandRef.current.focus()}>
+        @{userName} ~/Terminal <span className={`${theme === 'dark' ? 'text-light-body' : 'text-dark-body'}`}>$</span>
+        <span className={`ml-2 ${theme === 'dark' ? 'text-light-body' : 'text-dark-body'}`} >
             {command.slice(0,currentIndex)}
             <form autoComplete='off'  autoCorrect={'false'} className='inline' onSubmit={e => {
                     e.preventDefault()
-                    if (props.setPreviousCommand) {
-                        props.setPreviousCommand(command,commandRunnder(command))
-                    }
+                    setHistoryIndex(prev => prev = history.length+1)
+                    dispatch(commandHistorySlice.actions.addToHistory({command:command,result:commandRunnder({command,setUserName,setTheme,clearHistory})}))
                     setCurrentIndex(prev => prev = 0)
                     setCommand(prev => prev = '')
                     commandRef.current.value = ''
-                    setHistoryIndex(prev => prev+1)
                     
             }}>
                 <input autoFocus={true} id='terminal-cursor' 

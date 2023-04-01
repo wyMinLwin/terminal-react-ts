@@ -4,7 +4,7 @@ import TerminallBody from '../components/TerminallBody'
 
 const Home = () => {
   return (
-    <div className={`bg-pink-50 h-full w-full`}>
+    <div className={`h-full w-full`}>
         <TerminalHeader />
         <TerminallBody />
     </div>

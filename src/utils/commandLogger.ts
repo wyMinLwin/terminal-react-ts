@@ -1,4 +1,4 @@
 export const commandLogger = (command:string):string => {
-    let logging = command.slice(command.search('-log')+4)
+    let logging = command.slice(command.search('-log ')+5)
     return logging
 } 
